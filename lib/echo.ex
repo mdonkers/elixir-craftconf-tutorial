@@ -1,4 +1,6 @@
 defmodule OTP.Echo do
+  @receive_timeout 50
+
   def start_link do
     pid = spawn_link(__MODULE__, :loop, [])
     {:ok, pid}
@@ -13,6 +15,11 @@ defmodule OTP.Echo do
       {msg, caller} when is_pid(caller) ->
         Kernel.send(caller, msg)
         loop()
+      _msg ->
+        loop()
+    after
+      @receive_timeout ->
+        exit(:normal)
     end
   end
 
